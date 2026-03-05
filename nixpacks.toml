@@ -3,13 +3,13 @@ nixPkgs = ["python311", "uv", "nodejs", "pnpm"]
 
 [phases.install]
 cmds = [
-    "if [ \"$APP_TYPE\" = \"frontend\" ]; then cd frontend && pnpm install; else cd api && uv sync --no-dev --frozen; fi"
+    "if [ \"$APP_TYPE\" = \"frontend\" ]; then cd frontend && pnpm install --frozen-lockfile; else cd api && uv sync --no-dev --frozen; fi"
 ]
 
 [phases.build]
 cmds = [
-    "if [ \"$APP_TYPE\" = \"frontend\" ]; then cd frontend && NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL} pnpm run build; fi"
+    "if [ \"$APP_TYPE\" = \"frontend\" ]; then cd frontend && pnpm run build; fi"
 ]
 
 [start]
-cmd = "if [ \"$APP_TYPE\" = \"frontend\" ]; then sh /app/start_frontend.sh; else sh /app/start_backend.sh; fi"
+cmd = "if [ \"$APP_TYPE\" = \"frontend\" ]; then cd /app/frontend && node_modules/.bin/next start -p ${PORT:-3000}; else cd /app/api && .venv/bin/uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}; fi"
