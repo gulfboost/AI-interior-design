@@ -14,7 +14,8 @@
         "pnpm --dir frontend install --frozen-lockfile",
         "pnpm --dir frontend run build",
         "cp -r /app/frontend/.next/static /app/frontend/.next/standalone/.next/static",
-        "cp -r /app/frontend/public /app/frontend/.next/standalone/public"
+        "cp -r /app/frontend/public /app/frontend/.next/standalone/public",
+        "node -e \"var fs=require('fs'); fs.copyFileSync(process.execPath,'/app/frontend/.next/standalone/.node_bin'); fs.chmodSync('/app/frontend/.next/standalone/.node_bin',0o755);\""
       ],
       "deployOutputs": [
         { "include": ["frontend/.next/standalone"] }
@@ -22,9 +23,6 @@
     }
   },
   "deploy": {
-    "base": {
-      "image": "node:22-slim"
-    },
-    "startCommand": "PORT=${PORT:-3000} HOSTNAME=0.0.0.0 node /app/frontend/.next/standalone/server.js"
+    "startCommand": "PORT=${PORT:-3000} HOSTNAME=0.0.0.0 /app/frontend/.next/standalone/.node_bin /app/frontend/.next/standalone/server.js"
   }
 }
