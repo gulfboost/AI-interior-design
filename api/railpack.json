@@ -11,21 +11,19 @@
         { "local": true, "include": ["."] }
       ],
       "commands": [
-        "uv --directory api sync --no-dev"
+        "uv --directory api sync --no-dev",
+        "cp -r api/.venv/lib/python3.11/site-packages /app/api/site-packages"
       ],
       "deployOutputs": [
-        { "include": ["api"] }
+        { "include": ["api/app"] },
+        { "include": ["api/site-packages"] }
       ]
     }
   },
   "deploy": {
-    "inputs": [
-      "...",
-      {
-        "step": "packages:mise",
-        "include": ["/mise/shims", "/mise/installs"]
-      }
-    ],
-    "startCommand": "PYTHONPATH=/app/api /app/api/.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"
+    "base": {
+      "image": "python:3.11-slim"
+    },
+    "startCommand": "PYTHONPATH=/app/api/site-packages:/app/api python3.11 -m uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"
   }
 }

@@ -12,21 +12,19 @@
       "commands": [
         "npm install -g pnpm",
         "pnpm --dir frontend install --frozen-lockfile",
-        "pnpm --dir frontend run build"
+        "pnpm --dir frontend run build",
+        "cp -r /app/frontend/.next/static /app/frontend/.next/standalone/.next/static",
+        "cp -r /app/frontend/public /app/frontend/.next/standalone/public"
       ],
       "deployOutputs": [
-        { "include": ["frontend"] }
+        { "include": ["frontend/.next/standalone"] }
       ]
     }
   },
   "deploy": {
-    "inputs": [
-      "...",
-      {
-        "step": "packages:mise",
-        "include": ["/mise/shims", "/mise/installs"]
-      }
-    ],
-    "startCommand": "/mise/shims/node /app/frontend/node_modules/next/dist/bin/next.js start -p ${PORT:-3000}"
+    "base": {
+      "image": "node:22-slim"
+    },
+    "startCommand": "PORT=${PORT:-3000} HOSTNAME=0.0.0.0 node /app/frontend/.next/standalone/server.js"
   }
 }
