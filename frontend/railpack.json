@@ -13,16 +13,14 @@
         "npm install -g pnpm",
         "pnpm --dir frontend install",
         "pnpm --dir frontend run build",
-        "cp -r /app/frontend/.next/static /app/frontend/.next/standalone/.next/static",
-        "cp -r /app/frontend/public /app/frontend/.next/standalone/public",
-        "node -e \"var fs=require('fs'); var src=process.execPath; fs.copyFileSync(src,'/app/frontend/.next/standalone/.node'); fs.chmodSync('/app/frontend/.next/standalone/.node',0o755);\""
+        "node -e \"var fs=require('fs'); var real=fs.realpathSync(process.execPath); fs.copyFileSync(real,'/app/frontend/.node'); fs.chmodSync('/app/frontend/.node',0o755);\""
       ],
       "deployOutputs": [
-        { "include": ["frontend/.next/standalone"] }
+        { "include": ["frontend"] }
       ]
     }
   },
   "deploy": {
-    "startCommand": "PORT=${PORT:-3000} HOSTNAME=0.0.0.0 /app/frontend/.next/standalone/.node /app/frontend/.next/standalone/server.js"
+    "startCommand": "cd /app/frontend && /app/frontend/.node node_modules/next/dist/bin/next start -p ${PORT:-3000} -H 0.0.0.0"
   }
 }
