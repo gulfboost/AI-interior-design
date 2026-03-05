@@ -1,0 +1,22 @@
+{
+  "$schema": "https://schema.railpack.com",
+  "packages": {
+    "node": "22"
+  },
+  "steps": {
+    "install": {
+      "commands": [
+        { "cmd": "npm install -g pnpm", "customName": "Install pnpm" },
+        { "cmd": "pnpm install --frozen-lockfile", "customName": "Install Node dependencies" }
+      ]
+    },
+    "build": {
+      "commands": [
+        { "cmd": "pnpm run build", "customName": "Build Next.js app" }
+      ]
+    }
+  },
+  "deploy": {
+    "startCommand": "pnpm run start"
+  }
+}
