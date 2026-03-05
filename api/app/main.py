@@ -27,10 +27,12 @@ async def _init_db_with_retry(max_attempts: int = 5, delay: float = 5.0) -> None
     logger.error("Could not connect to database after %d attempts – DB-backed endpoints will fail", max_attempts)
 
 
+PUBLIC_DIR = Path(__file__).parent.parent / "public"
+PUBLIC_DIR.mkdir(exist_ok=True)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    Path("public").mkdir(exist_ok=True)
-
     # Try to connect to the DB but don't crash the process if it's unreachable.
     # This keeps /health alive while the DB warms up or is being provisioned.
     asyncio.ensure_future(_init_db_with_retry())
@@ -55,7 +57,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.mount("/public", StaticFiles(directory="public"), name="public")
+app.mount("/public", StaticFiles(directory=str(PUBLIC_DIR)), name="public")
 
 app.include_router(upload.router, prefix="/api", tags=["Upload"])
 app.include_router(styles.router, prefix="/api", tags=["Styles"])
