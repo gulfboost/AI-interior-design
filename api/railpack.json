@@ -6,12 +6,12 @@
   "steps": {
     "install": {
       "commands": [
-        { "cmd": "pip install uv", "customName": "Install uv" },
-        { "cmd": "sh -c 'cd api && uv sync --no-dev'", "customName": "Install Python dependencies" }
+        "pip install uv",
+        "cd api && uv sync --no-dev"
       ]
     }
   },
   "deploy": {
-    "startCommand": "sh -c 'cd /app/api && .venv/bin/uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}'"
+    "startCommand": "cd /app/api && .venv/bin/uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"
   }
 }
