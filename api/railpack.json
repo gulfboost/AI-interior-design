@@ -6,13 +6,16 @@
   },
   "steps": {
     "install": {
+      "inputs": [
+        "...",
+        { "local": true, "include": ["."] }
+      ],
       "commands": [
-        "pwd && ls -la",
-        "uv sync --no-dev"
+        "uv --directory api sync --no-dev"
       ]
     }
   },
   "deploy": {
-    "startCommand": ".venv/bin/uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"
+    "startCommand": "cd api && .venv/bin/uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"
   }
 }
