@@ -64,6 +64,11 @@ app.include_router(products.router, prefix="/api", tags=["Products"])
 app.include_router(analytics.router, prefix="/api", tags=["Analytics"])
 
 
+@app.get("/")
+async def root():
+    return {"status": "ok", "message": "AI Home Styling API"}
+
+
 @app.get("/health")
 async def health():
     return {"status": "ok"}
