@@ -19,6 +19,6 @@
     }
   },
   "deploy": {
-    "startCommand": "PYTHONPATH=/app/api /app/api/.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"
+    "startCommand": "uv --directory /app/api run uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"
   }
 }

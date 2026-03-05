@@ -4,19 +4,22 @@
     "node": "22"
   },
   "steps": {
-    "install": {
+    "build": {
+      "inputs": [
+        "...",
+        { "local": true, "include": ["frontend"] }
+      ],
       "commands": [
         "npm install -g pnpm",
-        "pnpm install --frozen-lockfile"
-      ]
-    },
-    "build": {
-      "commands": [
-        "pnpm run build"
+        "pnpm --dir frontend install --frozen-lockfile",
+        "pnpm --dir frontend run build"
+      ],
+      "deployOutputs": [
+        { "include": ["frontend"] }
       ]
     }
   },
   "deploy": {
-    "startCommand": "node_modules/.bin/next start -p ${PORT:-3000}"
+    "startCommand": "node /app/frontend/node_modules/next/dist/bin/next.js start -p ${PORT:-3000}"
   }
 }
