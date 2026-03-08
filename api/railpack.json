@@ -13,7 +13,7 @@
       "commands": [
         "uv --directory api sync --no-dev",
         "cp -r api/.venv/lib/python3.11/site-packages /app/api/site-packages",
-        "PY_BIN=$(mise which python3.11) && PY_ROOT=$(dirname \"$(dirname \"$PY_BIN\")\") && cp -r \"$PY_ROOT\" /app/api/python-runtime"
+        "PY_BIN=$(mise which python3.11) && PY_ROOT=$(dirname $(dirname $PY_BIN)) && cp -r $PY_ROOT /app/api/python-runtime"
       ],
       "deployOutputs": [
         { "include": ["api/app"] },
