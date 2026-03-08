@@ -12,17 +12,15 @@
       ],
       "commands": [
         "uv --directory api sync --no-dev",
-        "cp -r api/.venv/lib/python3.11/site-packages /app/api/site-packages",
-        "PY_BIN=$(mise which python3.11) && PY_ROOT=$(dirname $(dirname $PY_BIN)) && cp -r $PY_ROOT /app/api/python-runtime"
+        "cp -r api/.venv/lib/python3.11/site-packages /app/api/site-packages"
       ],
       "deployOutputs": [
         { "include": ["api/app"] },
-        { "include": ["api/site-packages"] },
-        { "include": ["api/python-runtime"] }
+        { "include": ["api/site-packages"] }
       ]
     }
   },
   "deploy": {
-    "startCommand": "PYTHONPATH=/app/api/site-packages:/app/api /app/api/python-runtime/bin/python3.11 -m uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"
+    "startCommand": "sh -c 'PYTHONPATH=/app/api/site-packages:/app/api python3.11 -m arq app.workers.main.WorkerSettings & PYTHONPATH=/app/api/site-packages:/app/api python3.11 -m uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}'"
   }
 }

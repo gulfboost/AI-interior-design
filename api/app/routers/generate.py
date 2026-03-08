@@ -1,6 +1,5 @@
-"""Generation endpoint - runs the AI pipeline in-process for POC."""
+"""Generation endpoint - runs the AI pipeline synchronously for POC."""
 
-import asyncio
 import base64
 import json
 import logging
@@ -8,6 +7,8 @@ import time
 from uuid import uuid4
 
 import httpx
+from arq import create_pool
+from arq.connections import RedisSettings
 from fastapi import APIRouter, HTTPException
 
 from app.config import settings
@@ -24,6 +25,16 @@ from app.services.storage import upload_image
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
+# Global ARQ redis pool
+_arq_pool = None
+
+
+async def get_arq_pool():
+    global _arq_pool
+    if _arq_pool is None:
+        _arq_pool = await create_pool(RedisSettings.from_dsn(settings.redis_url))
+    return _arq_pool
+
 @router.post("/generate", response_model=GenerateResponse)
 async def trigger_generation(request: GenerateRequest):
     job_id = str(uuid4())
@@ -37,25 +48,11 @@ async def trigger_generation(request: GenerateRequest):
     await redis.set(f"job:{job_id}:status", json.dumps(initial_status), ex=3600)
     await redis.close()
 
-    # Process asynchronously in this same web process (no separate worker required).
-    asyncio.create_task(_run_pipeline_background(job_id, session_id, style_id))
+    # Enqueue task in ARQ
+    arq_pool = await get_arq_pool()
+    await arq_pool.enqueue_job("generate_renders_task", job_id, session_id, style_id)
 
     return GenerateResponse(job_id=job_id, status="queued")
-
-
-async def _run_pipeline_background(job_id: str, session_id: str, style_id: str):
-    """Background wrapper that owns its Redis connection lifecycle."""
-    from redis.asyncio import Redis
-
-    redis = Redis.from_url(settings.redis_url, decode_responses=True)
-    try:
-        await _run_pipeline_impl(job_id, session_id, style_id, redis)
-    except Exception as e:
-        logger.exception("Pipeline background task failed: %s", e)
-        status = {"job_id": job_id, "status": "failed", "error": str(e)}
-        await redis.set(f"job:{job_id}:status", json.dumps(status), ex=3600)
-    finally:
-        await redis.close()
 
 @router.get("/generate/{job_id}", response_model=JobStatus)
 async def get_job_status(job_id: str):
