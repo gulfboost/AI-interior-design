@@ -12,6 +12,7 @@ from app.database import init_db_pool, close_db_pool
 from app.routers import analytics, generate, products, styles, upload
 
 logger = logging.getLogger(__name__)
+DEPLOY_MARKER = "diag-20260308-1"
 
 
 async def _init_db_with_retry(max_attempts: int = 5, delay: float = 5.0) -> None:
@@ -73,4 +74,4 @@ async def root():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok"}
+    return {"status": "ok", "marker": DEPLOY_MARKER}
